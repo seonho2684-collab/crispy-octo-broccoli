@@ -37,7 +37,7 @@ export default function FarmPage() {
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* text-3-xl을 text-3xl로 수정했습니다 */}
-      <h1 className="text-3xl font-bold mb-8 text-center text-green-700">🐷 양돈 농장 관리 시스템</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center text-green-700">🐷 다비육종 농장 관리 시스템</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
         {farms.map((farm) => (
