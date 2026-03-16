@@ -18,12 +18,16 @@ export default function FarmPage() {
     fetchFarms();
   }, []);
 
-  async function fetchFarms() {
+async function fetchFarms() {
     const { data, error } = await supabase.from('farms').select('*');
-    if (error) console.error('Farms fetch error:', error);
+    
+    // 이 두 줄을 추가해서 브라우저 콘솔(F12)을 다시 확인해 보세요.
+    console.log("가져온 데이터:", data);
+    if (error) console.log("에러 발생:", error);
+    
     setFarms(data || []);
   }
-
+  
   async function handleFarmClick(farm) {
     setSelectedFarm(farm);
     const { data, error } = await supabase
