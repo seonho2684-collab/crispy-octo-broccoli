@@ -100,7 +100,7 @@ async function fetchFarms() {
                     <tr key={b.id} className="hover:bg-gray-50 transition-colors">
                       <td className="p-3 border border-gray-200 font-medium">{b.building_name}</td>
                       <td className="p-3 border border-gray-200 text-center">{b.room_count}개</td>
-                      <td className="p-3 border border-gray-200 text-center">{b.total_area} m²</td>
+                      <td className="p-3 border border-gray-200 text-center">{b.total_area?.toLocaleString()} m²</td>
                       <td className="p-3 border border-gray-200 text-gray-600 text-sm whitespace-pre-line">{b.description}</td>
                     </tr>
                   ))}
