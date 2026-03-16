@@ -1,3 +1,4 @@
+// farm-admin/app/page.js 에 저장할 최종 코드
 'use client';
 import { createClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
@@ -13,31 +14,31 @@ export default function FarmPage() {
   const [buildings, setBuildings] = useState([]);
   const [isZoomed, setIsZoomed] = useState(false);
 
-  // 1. 농장 목록 불러오기
   useEffect(() => {
     fetchFarms();
   }, []);
 
   async function fetchFarms() {
-    const { data } = await supabase.from('farms').select('*');
+    const { data, error } = await supabase.from('farms').select('*');
+    if (error) console.error('Farms fetch error:', error);
     setFarms(data || []);
   }
 
-  // 2. 농장 클릭 시 건물 정보 불러오기
   async function handleFarmClick(farm) {
     setSelectedFarm(farm);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('buildings')
       .select('*')
       .eq('farm_id', farm.id);
+    if (error) console.error('Buildings fetch error:', error);
     setBuildings(data || []);
   }
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
-      <h1 className="text-3-xl font-bold mb-8 text-center text-green-700">🐷 양돈 농장 관리 시스템</h1>
+      {/* text-3-xl을 text-3xl로 수정했습니다 */}
+      <h1 className="text-3xl font-bold mb-8 text-center text-green-700">🐷 양돈 농장 관리 시스템</h1>
 
-      {/* 농장 리스트 (가로 배치) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
         {farms.map((farm) => (
           <div 
@@ -45,62 +46,68 @@ export default function FarmPage() {
             onClick={() => handleFarmClick(farm)}
             className="cursor-pointer bg-white rounded-xl shadow-md overflow-hidden hover:ring-2 ring-green-500 transition-all"
           >
-            <img src={farm.main_image_url} alt={farm.name} className="w-full h-48 object-cover" />
+            {/* 이미지가 없을 경우를 대비해 기본 UI 처리 */}
+            <div className="w-full h-48 bg-gray-200 overflow-hidden">
+              <img src={farm.main_image_url} alt={farm.name} className="w-full h-full object-cover" />
+            </div>
             <div className="p-4 text-center font-bold text-xl">{farm.name}</div>
           </div>
         ))}
       </div>
 
-      <hr className="my-10 border-gray-300" />
-
-      {/* 상세 정보 섹션 */}
       {selectedFarm && (
-        <div className="max-w-5xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
+        <div className="max-w-5xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
           <div className="flex flex-col md:flex-row gap-8 mb-8">
-            {/* 농장 사진 (클릭 시 확대) */}
-            <div className="flex-1">
+            <div className="flex-1 relative">
               <img 
                 src={selectedFarm.main_image_url} 
-                className={`rounded-lg cursor-zoom-in transition-transform duration-300 ${isZoomed ? 'fixed inset-0 m-auto z-50 scale-150 w-auto max-h-[80vh] shadow-2xl' : 'w-full'}`}
+                className={`rounded-lg cursor-zoom-in transition-all duration-300 ${isZoomed ? 'fixed inset-0 m-auto z-50 scale-125 w-auto max-h-[80vh] shadow-2xl' : 'w-full'}`}
                 onClick={() => setIsZoomed(!isZoomed)}
-                alt="농장 크게보기"
+                alt="농장 이미지"
               />
               {isZoomed && <div className="fixed inset-0 bg-black/70 z-40" onClick={() => setIsZoomed(false)}></div>}
-              <p className="text-sm text-gray-500 mt-2 text-center">* 사진을 클릭하면 확대됩니다.</p>
+              <p className="text-sm text-gray-400 mt-2 text-center italic">사진 클릭 시 확대/축소</p>
             </div>
 
-            {/* 농장 기본 정보 */}
             <div className="flex-1 space-y-4">
-              <h2 className="text-3xl font-bold text-gray-800">{selectedFarm.name} 상세 정보</h2>
-              <p>📍 <b>주소:</b> {selectedFarm.address}</p>
-              <p>👤 <b>농장장:</b> {selectedFarm.manager_name}</p>
-              <p>📞 <b>연락처:</b> {selectedFarm.manager_contact}</p>
+              <h2 className="text-3xl font-bold text-gray-800 border-b pb-2">{selectedFarm.name}</h2>
+              <div className="text-gray-700 space-y-2">
+                <p>📍 <b>주소:</b> {selectedFarm.address}</p>
+                <p>👤 <b>농장장:</b> {selectedFarm.manager_name}</p>
+                <p>📞 <b>연락처:</b> {selectedFarm.manager_contact}</p>
+              </div>
             </div>
           </div>
 
-          {/* 건물 정보 표 */}
           <div className="mt-10">
-            <h3 className="text-xl font-semibold mb-4">🏠 건물(돈사)별 세부 내역</h3>
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-green-100">
-                  <th className="p-3 border">건물명</th>
-                  <th className="p-3 border">돈방 개수</th>
-                  <th className="p-3 border">세부 면적(m²)</th>
-                  <th className="p-3 border">상세 설명</th>
-                </tr>
-              </thead>
-              <tbody>
-                {buildings.map((b) => (
-                  <tr key={b.id} className="hover:bg-gray-50">
-                    <td className="p-3 border font-medium">{b.building_name}</td>
-                    <td className="p-3 border">{b.room_count}개</td>
-                    <td className="p-3 border">{b.total_area} m²</td>
-                    <td className="p-3 border text-gray-600 text-sm">{b.description}</td>
+            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">🏠 건물별 세부 내역</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse border border-gray-200">
+                <thead>
+                  <tr className="bg-green-50">
+                    <th className="p-3 border border-gray-200">건물명</th>
+                    <th className="p-3 border border-gray-200 text-center">돈방 개수</th>
+                    <th className="p-3 border border-gray-200 text-center">세부 면적</th>
+                    <th className="p-3 border border-gray-200">상세 설명</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {buildings.map((b) => (
+                    <tr key={b.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="p-3 border border-gray-200 font-medium">{b.building_name}</td>
+                      <td className="p-3 border border-gray-200 text-center">{b.room_count}개</td>
+                      <td className="p-3 border border-gray-200 text-center">{b.total_area} m²</td>
+                      <td className="p-3 border border-gray-200 text-gray-600 text-sm whitespace-pre-line">{b.description}</td>
+                    </tr>
+                  ))}
+                  {buildings.length === 0 && (
+                    <tr>
+                      <td colSpan="4" className="p-10 text-center text-gray-400">등록된 건물 정보가 없습니다.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
