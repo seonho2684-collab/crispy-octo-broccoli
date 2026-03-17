@@ -1,120 +1,110 @@
-// farm-admin/app/page.js 에 저장할 최종 코드
-'use client';
-import { createClient } from '@supabase/supabase-js';
-import { useEffect, useState } from 'react';
+// app/page.js
+'use strict';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import { createClient } from '@supabase/supabase-js'
+import { useState, useEffect } from 'react'
+import { MapPin, User, Phone, X } from 'lucide-react'
 
-export default function FarmPage() {
+// Supabase 클라이언트 설정 (반드시 자신의 Key로 변경하세요)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+export default function Home() {
   const [farms, setFarms] = useState([]);
-  const [selectedFarm, setSelectedFarm] = useState(null);
-  const [buildings, setBuildings] = useState([]);
-  const [isZoomed, setIsZoomed] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [selectedFarm, setSelectedFarm] = useState(null); // 선택된 농장을 저장하는 State
 
   useEffect(() => {
+    async function fetchFarms() {
+      try {
+        const { data, error } = await supabase.from('farms').select('*');
+        if (error) throw error;
+        setFarms(data || []);
+      } catch (error) {
+        console.error('농장 정보를 가져오는 중 에러 발생:', error.message);
+      } finally {
+        setLoading(setFarms);
+      }
+    }
     fetchFarms();
   }, []);
 
-async function fetchFarms() {
-    const { data, error } = await supabase.from('farms').select('*');
-    
-    // 이 두 줄을 추가해서 브라우저 콘솔(F12)을 다시 확인해 보세요.
-    console.log("가져온 데이터:", data);
-    if (error) console.log("에러 발생:", error);
-    
-    setFarms(data || []);
-  }
-  
-  async function handleFarmClick(farm) {
-    setSelectedFarm(farm);
-    const { data, error } = await supabase
-      .from('buildings')
-      .select('*')
-      .eq('farm_id', farm.id);
-    if (error) console.error('Buildings fetch error:', error);
-    setBuildings(data || []);
-  }
+  if (loading) return <div className="p-10 text-center">로딩 중...</div>;
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
-      {/* text-3-xl을 text-3xl로 수정했습니다 */}
-      <h1 className="text-3xl font-bold mb-8 text-center text-green-700">🐷 다비육종 농장 관리 시스템</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        {farms.map((farm) => (
-          <div 
-            key={farm.id} 
-            onClick={() => handleFarmClick(farm)}
-            className="cursor-pointer bg-white rounded-xl shadow-md overflow-hidden hover:ring-2 ring-green-500 transition-all"
+    <main className="min-h-screen bg-gray-50 p-6 md:p-10">
+      <header className="flex items-center justify-between pb-8 mb-10 border-b border-gray-200">
+        <h1 className="text-4xl font-extrabold text-gray-950 tracking-tight">도화종돈 <span className="text-gray-500 font-normal">(도화 본장)</span></h1>
+        {selectedFarm && (
+          <button 
+            onClick={() => setSelectedFarm(null)} // 목록으로 돌아가기
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium"
           >
-            {/* 이미지가 없을 경우를 대비해 기본 UI 처리 */}
-            <div className="w-full h-48 bg-gray-200 overflow-hidden">
-              <img src={farm.main_image_url} alt={farm.name} className="w-full h-full object-cover" />
-            </div>
-            <div className="p-4 text-center font-bold text-xl">{farm.name}</div>
-          </div>
-        ))}
-      </div>
+            <X size={16} /> 목록으로
+          </button>
+        )}
+      </header>
 
-      {selectedFarm && (
-        <div className="max-w-5xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
-          <div className="flex flex-col md:flex-row gap-8 mb-8">
-            <div className="flex-1 relative">
-              <img 
-                src={selectedFarm.main_image_url} 
-                className={`rounded-lg cursor-zoom-in transition-all duration-300 ${isZoomed ? 'fixed inset-0 m-auto z-50 scale-125 w-auto max-h-[80vh] shadow-2xl' : 'w-full'}`}
-                onClick={() => setIsZoomed(!isZoomed)}
-                alt="농장 이미지"
-              />
-              {isZoomed && <div className="fixed inset-0 bg-black/70 z-40" onClick={() => setIsZoomed(false)}></div>}
-              <p className="text-sm text-gray-400 mt-2 text-center italic">사진 클릭 시 확대/축소</p>
-            </div>
-
-            <div className="flex-1 space-y-4">
-              <h2 className="text-3xl font-bold text-gray-800 border-b pb-2">{selectedFarm.name}</h2>
-              <div className="text-gray-700 space-y-2">
-                <p>📍 <b>주소:</b> {selectedFarm.address}</p>
-                <p>👤 <b>농장장:</b> {selectedFarm.manager_name}</p>
-                <p>📞 <b>연락처:</b> {selectedFarm.manager_contact}</p>
+      {/* 1. 농장 상세 화면 (선택된 농장이 있을 때) */}
+      {selectedFarm ? (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
+          
+          {/* 왼쪽: 기존 정보와 드론 사진 */}
+          <div className="space-y-10">
+            <section className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+              <h2 className="text-2xl font-bold mb-6">농장 기본 정보</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+                <div className="flex items-center gap-3"><MapPin className="text-green-600" /> 주소: {selectedFarm.address}</div>
+                <div className="flex items-center gap-3"><User className="text-green-600" /> 관리자: {selectedFarm.manager_name}</div>
+                <div className="flex items-center gap-3"><Phone className="text-green-600" /> 연락처: {selectedFarm.manager_contact}</div>
               </div>
-            </div>
+            </section>
+
+            <section className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+              <h2 className="text-2xl font-bold mb-6">농장 드론뷰 (배치도)</h2>
+              <div className="aspect-[16/10] bg-gray-100 rounded-2xl overflow-hidden border border-gray-200">
+                <img src={selectedFarm.main_image_url} alt={`${selectedFarm.name} 드론뷰`} className="w-full h-full object-cover" />
+              </div>
+            </section>
           </div>
 
-          <div className="mt-10">
-            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">🏠 건물별 세부 내역</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse border border-gray-200">
-                <thead>
-                  <tr className="bg-green-50">
-                    <th className="p-3 border border-gray-200">건물명</th>
-                    <th className="p-3 border border-gray-200 text-center">돈방 개수</th>
-                    <th className="p-3 border border-gray-200 text-center">세부 면적</th>
-                    <th className="p-3 border border-gray-200">상세 설명</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {buildings.map((b) => (
-                    <tr key={b.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="p-3 border border-gray-200 font-medium">{b.building_name}</td>
-                      <td className="p-3 border border-gray-200 text-center">{b.room_count}개</td>
-                      <td className="p-3 border border-gray-200 text-center">{b.total_area?.toLocaleString()} m²</td>
-                      <td className="p-3 border border-gray-200 text-gray-600 text-sm whitespace-pre-line">{b.description}</td>
-                    </tr>
-                  ))}
-                  {buildings.length === 0 && (
-                    <tr>
-                      <td colSpan="4" className="p-10 text-center text-gray-400">등록된 건물 정보가 없습니다.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+          {/* 오른쪽: 건축물 대장 이미지 (image_0.png) */}
+          <section className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm xl:sticky xl:top-10 h-fit">
+            <h2 className="text-2xl font-bold mb-6">건축물 대장 및 세부 면적 요약</h2>
+            <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-inner bg-gray-50">
+              {/* 실제 배포 시, 이 농장에 맞는 첨부 이미지 URL을 Supabase에 저장해서 가져와야 합니다. */}
+              {/* 임시로 Unsplash 이미지를 사용합니다. */}
+              <img 
+                src="https://images.unsplash.com/photo-1594911771131-016259068098?q=80&w=1200" 
+                alt="건축물 대장 첨부 이미지" 
+                className="w-full h-auto"
+              />
             </div>
-          </div>
+            <p className="text-xs text-gray-400 mt-4 text-center">※ 이미지 내용은 Supabase에서 관리됩니다.</p>
+          </section>
+
+        </div>
+      ) : (
+        
+        // 2. 메인 화면 (농장 목록)
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {farms.map((farm) => (
+            <div 
+              key={farm.id}
+              onClick={() => setSelectedFarm(farm)} // 클릭 시 상세 화면으로 전환
+              className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer group"
+            >
+              <div className="aspect-video bg-gray-100 rounded-xl mb-5 overflow-hidden border border-gray-100">
+                <img src={farm.main_image_url} alt={farm.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-950 mb-2">{farm.name}</h3>
+              <p className="text-gray-600 text-sm line-clamp-1 flex items-center gap-1.5"><MapPin size={14} /> {farm.address}</p>
+              <div className="mt-5 text-sm font-semibold text-green-600">상세 정보 보기 →</div>
+            </div>
+          ))}
         </div>
       )}
-    </div>
-  );
+    </main>
+  )
 }
