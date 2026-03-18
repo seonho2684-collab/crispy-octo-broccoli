@@ -150,24 +150,24 @@ export default function Home() {
                 </h2>
                 {!selectedFarm.latitude && <span className="text-[10px] bg-rose-50 text-rose-500 px-2 py-1 rounded-md font-bold uppercase">No GPS Data</span>}
               </div>
-              <div className="aspect-[16/9] rounded-2xl overflow-hidden border border-slate-100 bg-slate-100 shadow-inner group">
-                {getKakaoMapUrl(selectedFarm) ? (
-                  <img 
-                    src={getKakaoMapUrl(selectedFarm)} 
-                    alt="카카오 위성사진" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    onError={(e) => {
-                      e.target.src = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1200";
-                      console.error("도메인 미등록 또는 키 오류로 지도를 불러올 수 없습니다.");
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center bg-slate-50">
-                    <Globe size={32} className="mb-2 opacity-20" />
-                    <p className="text-xs font-bold uppercase tracking-widest text-slate-300 italic underline decoration-rose-200">Waiting for Latitude & Longitude</p>
-                  </div>
-                )}
-              </div>
+            <div className="aspect-[16/9] rounded-2xl overflow-hidden border border-slate-100 bg-slate-100 shadow-inner group">
+  {getKakaoMapUrl(selectedFarm) ? (
+    <img 
+      src={getKakaoMapUrl(selectedFarm)} 
+      alt="카카오 위성사진" 
+      className="w-full h-full object-cover"
+      onError={(e) => {
+        // 풍경 사진(unsplash) 주소를 지우고 에러 로그만 남깁니다.
+        e.target.style.border = "4px solid red"; 
+        console.error("카카오 지도 호출 에러: 도메인 혹은 키를 확인하세요.");
+      }}
+    />
+  ) : (
+    <div className="w-full h-full flex items-center justify-center text-slate-300">
+      좌표 데이터가 없습니다.
+    </div>
+  )}
+</div>
             </section>
 
             {/* 부동산 현황도 카드 */}
