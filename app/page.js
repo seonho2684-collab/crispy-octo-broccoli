@@ -43,17 +43,17 @@ export default function Home() {
   const getKakaoMapUrl = (farm) => {
     if (!farm.latitude || !farm.longitude) return null;
 
-    // 1. 숫자로 변환하고 소수점 6자리까지 고정 (안정성 확보)
+    // 1. 숫자 포맷 정리 (소수점 6자리)
     const lat = Number(farm.latitude).toFixed(6);
     const lng = Number(farm.longitude).toFixed(6);
 
-    // 2. 카카오 Static Map 최신 호출 규격
-    // 파라미터: center(경도,위도), level(확대:3), map_type(위성:SKYVIEW)
-    // 주의: mx/my 대신 center를 사용하고 경도(lng)가 먼저 와야 할 때가 많습니다.
-    const baseUrl = "https://map2.daum.net/map/staticmap";
+    // 2. 최신 카카오 정적 지도 API 엔드포인트
+    // 주소: https://map.kakao.com/api/staticmap
+    // 파라미터: center(경도,위도 순서), level(확대:3), map_type(위성:SKYVIEW)
+    const baseUrl = "https://map.kakao.com/api/staticmap";
     
-    // 가장 표준적인 파라미터 조합 (404 방지)
-    return `${baseUrl}?center=${lng},${lat}&level=3&map_type=SKYVIEW&width=800&height=450&service=open`;
+    // mx, my 방식이 아닌 center 방식을 사용하며, 경도(lng)와 위도(lat)를 콤마로 연결합니다.
+    return `${baseUrl}?center=${lng},${lat}&level=3&map_type=SKYVIEW&width=800&height=450`;
   };
 
   return (
