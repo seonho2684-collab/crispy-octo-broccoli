@@ -132,14 +132,13 @@ export default function Home() {
                 )}
               </div>
               <div className="aspect-[16/9] rounded-2xl overflow-hidden border border-slate-100 bg-slate-50 shadow-inner">
-                // 카카오 위성지도 URL 생성 (안정적인 WGS84 위도/경도 방식)
-  const getKakaoMap = (farm) => {
-    if (!farm.latitude || !farm.longitude) return null;
-    
-    // mx/my 대신 위도(lat), 경도(lng)를 직접 사용하는 URL 구조입니다.
-    // L=확대레벨(1~14, 3이 적당), map_type=SKYVIEW(위성)
-    return `https://map2.daum.net/map/staticmap?center=${farm.latitude},${farm.longitude}&level=3&map_type=SKYVIEW&width=800&height=450&service=open`;
-  };
+                {getKakaoMap(selectedFarm) ? (
+                  <img src={getKakaoMap(selectedFarm)} alt="카카오 위성사진" className="w-full h-full object-cover transition-transform hover:scale-105 duration-500" />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 text-sm p-6 text-center">
+                    <p>위도(latitude)와 경도(longitude) 데이터가 없습니다.</p>
+                  </div>
+                )}
               </div>
             </section>
 
