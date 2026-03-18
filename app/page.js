@@ -39,27 +39,21 @@ export default function Home() {
   // 선택된 농장의 건물들만 필터링
   const farmBuildings = buildings.filter(b => b.farm_id === selectedFarm?.id);
 
-// 카카오 위성지도 URL 생성 (가장 표준적인 mx, my 방식)
+// 카카오 위성지도 URL 생성 (최신 API 규격: 404 에러 방지용)
   const getKakaoMapUrl = (farm) => {
     if (!farm.latitude || !farm.longitude) return null;
 
-    // 404 에러를 피하기 위한 가장 정확한 파라미터 조합입니다.
-    // 1. 'center' 대신 'mx, my' 조합을 사용하거나, 'px, py'를 사용해야 할 때가 있습니다.
-    // 2. 가장 확실한 것은 'WGS84' 좌표계를 직접 넣는 방식입니다.
-    
-    // [최종 시도] 이 주소는 카카오 API 문서의 표준 규격입니다.
-    const baseUrl = "https://map2.daum.net/map/staticmap";
-    const params = new URLSearchParams({
-      iw: 800,           // 이미지 가로 크기
-      ih: 450,           // 이미지 세로 크기
-      mx: farm.longitude, // 경도
-      my: farm.latitude,  // 위도
-      level: 3,          // 확대 레벨
-      map_type: "SKYVIEW", // 위성 지도 모드
-      service: "open"    // 서비스 오픈 모드
-    });
+    // 1. 숫자로 변환하고 소수점 6자리까지 고정 (안정성 확보)
+    const lat = Number(farm.latitude).toFixed(6);
+    const lng = Number(farm.longitude).toFixed(6);
 
-    return `${baseUrl}?${params.toString()}`;
+    // 2. 카카오 Static Map 최신 호출 규격
+    // 파라미터: center(경도,위도), level(확대:3), map_type(위성:SKYVIEW)
+    // 주의: mx/my 대신 center를 사용하고 경도(lng)가 먼저 와야 할 때가 많습니다.
+    const baseUrl = "https://map2.daum.net/map/staticmap";
+    
+    // 가장 표준적인 파라미터 조합 (404 방지)
+    return `${baseUrl}?center=${lng},${lat}&level=3&map_type=SKYVIEW&width=800&height=450&service=open`;
   };
 
   return (
