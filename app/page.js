@@ -39,20 +39,14 @@ export default function Home() {
   // 선택된 농장의 건물들만 필터링
   const farmBuildings = buildings.filter(b => b.farm_id === selectedFarm?.id);
 
-  // 3. 카카오 위성지도 URL 생성 함수 (가장 안정적인 파라미터 구성)
+ // 카카오 위성지도 URL 생성 (가장 표준적인 mx, my 방식 사용)
   const getKakaoMapUrl = (farm) => {
     if (!farm.latitude || !farm.longitude) return null;
-    // 파라미터 설명: center(중심좌표), level(확대:3), map_type(위성:SKYVIEW), width/height(크기)
-    return `https://map2.daum.net/map/staticmap?center=${farm.latitude},${farm.longitude}&level=3&map_type=SKYVIEW&width=800&height=450&service=open`;
+    
+    // level=3 (확대), L=3과 동일한 효과
+    // mx(경도), my(위도) 순서입니다.
+    return `https://map2.daum.net/map/staticmap?mx=${farm.longitude}&my=${farm.latitude}&level=3&map_type=SKYVIEW&map_width=800&map_height=450&service=open`;
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Loader2 className="animate-spin text-green-600" size={48} />
-      </div>
-    );
-  }
 
   return (
     <main className="min-h-screen bg-slate-50 p-6 md:p-10 text-slate-900 font-sans">
