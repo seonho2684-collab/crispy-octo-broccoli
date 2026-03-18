@@ -2,7 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { useState, useEffect } from 'react'
-import { MapPin, User, Phone, ExternalLink, Building2 } from 'lucide-react'
+import { MapPin, User, Phone, ExternalLink, Building2, Globe, Layout } from 'lucide-react'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -19,10 +19,10 @@ export default function Home() {
     setIsClient(true);
     async function fetchData() {
       try {
-        const { data: farmData } = await supabase.from('farms').select('*');
-        const { data: buildingData } = await supabase.from('buildings').select('*');
-        setFarms(farmData || []);
-        setBuildings(buildingData || []);
+        const { data: f } = await supabase.from('farms').select('*');
+        const { data: b } = await supabase.from('buildings').select('*');
+        setFarms(f || []);
+        setBuildings(b || []);
       } catch (error) {
         console.error('데이터 로딩 오류:', error);
       } finally {
@@ -34,7 +34,6 @@ export default function Home() {
 
   if (!isClient) return null;
 
-  // 선택된 농장에 속한 건물들 필터링
   const farmBuildings = buildings.filter(b => b.farm_id === selectedFarm?.id);
 
   // 카카오 위성지도 URL 생성
@@ -42,23 +41,24 @@ export default function Home() {
     if (!farm.latitude || !farm.longitude) return null;
     return `https://map2.daum.net/map/staticmap?mx=${farm.longitude}&my=${farm.latitude}&level=3&map_type=SKYVIEW&map_width=800&map_height=450&service=open`;
   };
-  
-  return (
-    <main className="min-h-screen bg-gray-50 p-6 md:p-10 text-gray-900 font-sans">
-      <header className="mb-12">
-        <h1 className="text-3xl font-bold mb-8 text-center text-green-700">🐷 양돈 농장 관리 시스템</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        {/* 상단 농장 이름 목록 (사진 없음) */}
+  return (
+    <main className="min-h-screen bg-slate-50 p-6 md:p-10 text-slate-900 font-sans">
+      <header className="mb-12">
+        <h1 className="text-3xl font-black mb-8 tracking-tight">
+          도화종돈 <span className="text-green-600 font-medium text-lg ml-2">Smart Farm Manager</span>
+        </h1>
+        
+        {/* 상단 농장 이름 목록 */}
         <div className="flex flex-wrap gap-3">
           {farms.map((farm) => (
             <button
               key={farm.id}
               onClick={() => setSelectedFarm(farm)}
-              className={`px-6 py-3 rounded-xl font-bold transition-all border ${
+              className={`px-6 py-3 rounded-2xl font-bold transition-all border-2 ${
                 selectedFarm?.id === farm.id 
-                ? 'bg-green-600 text-white border-green-600 shadow-md' 
-                : 'bg-white text-gray-700 border-gray-200 hover:border-green-500 hover:text-green-600'
+                ? 'bg-green-600 text-white border-green-600 shadow-lg scale-105' 
+                : 'bg-white text-slate-600 border-white hover:border-green-200 hover:bg-green-50'
               }`}
             >
               {farm.name}
@@ -67,67 +67,60 @@ export default function Home() {
         </div>
       </header>
 
-          //목록으로 돌아가기 버튼 추가
-    <main className="min-h-screen bg-gray-50 p-6 md:p-10">
-      <header className="flex items-center justify-between pb-8 mb-10 border-b border-gray-200">
-        <h1 className="text-4xl font-extrabold text-gray-950 tracking-tight">도화종돈 <span className="text-gray-500 font-normal">(도화 본장)</span></h1>
-        {selectedFarm && (
-          <button 
-            onClick={() => setSelectedFarm(null)} // 목록으로 돌아가기
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium"
-          >
-            <X size={16} /> 목록으로
-          </button>
-        )}
-      </header>
-
-      {/* 농장 상세 정보 (농장을 클릭했을 때만 나타남) */}
       {selectedFarm ? (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            {/* 1. 기본 정보 및 건물 내역 */}
-            <div className="space-y-6">
-              <section className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-                <div className="flex justify-between items-start mb-6">
-                  <h2 className="text-2xl font-bold">기본 정보</h2>
-                  {selectedFarm.main_image_url && (
-                    <a 
-                      href={selectedFarm.main_image_url} 
-                      target="_blank" 
-                      className="flex items-center gap-1.5 text-sm font-semibold text-green-600 hover:underline"
-                    >
-                      <ExternalLink size={16} /> 드론 뷰 링크
-                    </a>
-                  )}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
+          
+          {/* 왼쪽 컬럼: 기본 정보 및 건물 내역 */}
+          <div className="space-y-8">
+            <section className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold italic text-slate-800">Farm Info.</h2>
+                {selectedFarm.Drone_url && (
+                  <a 
+                    href={selectedFarm.Drone_url} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="text-green-600 flex items-center gap-1.5 text-sm font-bold bg-green-50 px-3 py-1.5 rounded-full hover:bg-green-100 transition-colors"
+                  >
+                    <ExternalLink size={16} /> 드론 뷰 웹 링크
+                  </a>
+                )}
+              </div>
+              <div className="space-y-4 text-sm">
+                <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <MapPin size={20} className="text-slate-400" /> {selectedFarm.address}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl"><MapPin size={18} className="text-gray-400" /> {selectedFarm.address}</div>
-                  <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl"><User size={18} className="text-gray-400" /> {selectedFarm.manager_name}</div>
-                  <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl"><Phone size={18} className="text-gray-400" /> {selectedFarm.manager_contact}</div>
+                <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <User size={20} className="text-slate-400" /> {selectedFarm.manager_name}
                 </div>
-              </section>
+                <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <Phone size={20} className="text-slate-400" /> {selectedFarm.manager_contact}
+                </div>
+              </div>
+            </section>
 
-              <section className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><Building2 className="text-green-600" /> 건축물 세부 내역</h2>
-                <div className="space-y-3">
-                  {farmBuildings.length > 0 ? farmBuildings.map((b) => (
-                    <div key={b.id} className="flex justify-between items-center p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 rounded-lg transition-colors">
-                      <div>
-                        <p className="font-bold text-gray-900">{b.building_name}</p>
-                        <p className="text-xs text-gray-500">{b.room_count}개 돈방 / {b.description}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-mono font-bold text-green-700">{b.total_area?.toLocaleString()} ㎡</p>
-                        <p className="text-[10px] text-gray-400">약 {Math.round(b.total_area / 3.305)}평</p>
-                      </div>
+            <section className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <Building2 className="text-green-600" /> 건축물 세부 내역
+              </h2>
+              <div className="divide-y divide-slate-50">
+                {farmBuildings.length > 0 ? farmBuildings.map((b) => (
+                  <div key={b.id} className="py-4 flex justify-between items-center group">
+                    <div>
+                      <p className="font-bold text-slate-800 group-hover:text-green-600 transition-colors">{b.building_name}</p>
+                      <p className="text-xs text-slate-400">{b.room_count}돈방 · {b.description}</p>
                     </div>
-                  )) : <p className="text-gray-400 text-center py-4">등록된 건물 정보가 없습니다.</p>}
-                </div>
-              </section>
-            </div>
+                    <div className="text-right">
+                      <p className="font-black text-slate-900">{b.total_area?.toLocaleString()} ㎡</p>
+                      <p className="text-[10px] text-slate-400">약 {Math.round(b.total_area / 3.305)}평</p>
+                    </div>
+                  </div>
+                )) : <p className="text-slate-400 py-4 text-center">건물 정보가 없습니다.</p>}
+              </div>
+            </section>
+          </div>
 
-            {/* 오른쪽 컬럼: 위성 사진 및 부동산 현황도 */}
+          {/* 오른쪽 컬럼: 위성 사진 및 부동산 현황도 */}
           <div className="space-y-8">
             <section className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
               <div className="flex justify-between items-center mb-6">
@@ -159,15 +152,14 @@ export default function Home() {
                 ) : (
                   <div className="p-20 text-center text-slate-300 text-sm">등록된 현황도 이미지가 없습니다.</div>
                 )}
-                </div>
-              </section>
-            </div>
+              </div>
+            </section>
           </div>
         </div>
       ) : (
-        /* 초기 안내 메시지 */
-        <div className="mt-20 text-center py-20 bg-white rounded-[40px] border border-dashed border-gray-200">
-          <p className="text-gray-400 font-medium text-lg">상단의 농장 이름을 클릭하여 상세 정보를 확인하세요.</p>
+        /* 초기 화면 */
+        <div className="mt-20 text-center py-32 bg-white rounded-[48px] border-2 border-dashed border-slate-200">
+          <p className="text-slate-400 font-bold text-xl italic uppercase tracking-widest">Select a Farm to View Details</p>
         </div>
       )}
     </main>
