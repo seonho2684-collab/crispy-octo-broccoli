@@ -36,35 +36,52 @@ export default function Home() {
 
   const farmBuildings = buildings.filter(b => b.farm_id === selectedFarm?.id);
 
-  // 카카오 위성지도 URL 생성
+// 카카오 위성지도 URL 생성 (안정적인 WGS84 위도/경도 방식)
   const getKakaoMap = (farm) => {
     if (!farm.latitude || !farm.longitude) return null;
-    return `https://map2.daum.net/map/staticmap?mx=${farm.longitude}&my=${farm.latitude}&level=3&map_type=SKYVIEW&map_width=800&map_height=450&service=open`;
+    
+    // mx/my 대신 위도(lat), 경도(lng)를 직접 사용하는 URL 구조입니다.
+    // L=확대레벨(1~14, 3이 적당), map_type=SKYVIEW(위성)
+    return `https://map2.daum.net/map/staticmap?center=${farm.latitude},${farm.longitude}&level=3&map_type=SKYVIEW&width=800&height=450&service=open`;
   };
 
-  return (
-    <main className="min-h-screen bg-slate-50 p-6 md:p-10 text-slate-900 font-sans">
+   return (
+    <main className="min-h-screen bg-gray-50 p-6 md:p-10 text-gray-900 font-sans">
       <header className="mb-12">
-        <h1 className="text-3xl font-black mb-8 tracking-tight">
-          도화종돈 <span className="text-green-600 font-medium text-lg ml-2">Smart Farm Manager</span>
-        </h1>
+        <h1 className="text-3xl font-bold mb-8 text-center text-green-700">🐷 양돈 농장 관리 시스템
+     </h1>
         
-        {/* 상단 농장 이름 목록 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        {/* 상단 농장 이름 목록 (사진 없음) */}
         <div className="flex flex-wrap gap-3">
           {farms.map((farm) => (
             <button
               key={farm.id}
               onClick={() => setSelectedFarm(farm)}
-              className={`px-6 py-3 rounded-2xl font-bold transition-all border-2 ${
+              className={`px-6 py-3 rounded-xl font-bold transition-all border ${
                 selectedFarm?.id === farm.id 
-                ? 'bg-green-600 text-white border-green-600 shadow-lg scale-105' 
-                : 'bg-white text-slate-600 border-white hover:border-green-200 hover:bg-green-50'
+                ? 'bg-green-600 text-white border-green-600 shadow-md' 
+                : 'bg-white text-gray-700 border-gray-200 hover:border-green-500 hover:text-green-600'
               }`}
             >
               {farm.name}
             </button>
           ))}
         </div>
+      </header>
+
+          //목록으로 돌아가기 버튼 추가
+    <main className="min-h-screen bg-gray-50 p-6 md:p-10">
+      <header className="flex items-center justify-between pb-8 mb-10 border-b border-gray-200">
+        <h1 className="text-4xl font-extrabold text-gray-950 tracking-tight">도화종돈 <span className="text-gray-500 font-normal">(도화 본장)</span></h1>
+        {selectedFarm && (
+          <button 
+            onClick={() => setSelectedFarm(null)} // 목록으로 돌아가기
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium"
+          >
+            <X size={16} /> 목록으로
+          </button>
+        )}
       </header>
 
       {selectedFarm ? (
