@@ -42,8 +42,24 @@ export default function Home() {
 // 카카오 위성지도 URL 생성 (가장 표준적인 mx, my 방식)
   const getKakaoMapUrl = (farm) => {
     if (!farm.latitude || !farm.longitude) return null;
-    // mx(경도), my(위도) 순서입니다.
-    return `https://map2.daum.net/map/staticmap?mx=${farm.longitude}&my=${farm.latitude}&level=3&map_type=SKYVIEW&width=800&height=450&service=open`;
+
+    // 404 에러를 피하기 위한 가장 정확한 파라미터 조합입니다.
+    // 1. 'center' 대신 'mx, my' 조합을 사용하거나, 'px, py'를 사용해야 할 때가 있습니다.
+    // 2. 가장 확실한 것은 'WGS84' 좌표계를 직접 넣는 방식입니다.
+    
+    // [최종 시도] 이 주소는 카카오 API 문서의 표준 규격입니다.
+    const baseUrl = "https://map2.daum.net/map/staticmap";
+    const params = new URLSearchParams({
+      iw: 800,           // 이미지 가로 크기
+      ih: 450,           // 이미지 세로 크기
+      mx: farm.longitude, // 경도
+      my: farm.latitude,  // 위도
+      level: 3,          // 확대 레벨
+      map_type: "SKYVIEW", // 위성 지도 모드
+      service: "open"    // 서비스 오픈 모드
+    });
+
+    return `${baseUrl}?${params.toString()}`;
   };
 
   return (
