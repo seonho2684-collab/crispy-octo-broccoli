@@ -37,11 +37,18 @@ export default function Home() {
   // 선택된 농장에 속한 건물들 필터링
   const farmBuildings = buildings.filter(b => b.farm_id === selectedFarm?.id);
 
+  // 카카오 위성지도 URL 생성
+  const getKakaoMap = (farm) => {
+    if (!farm.latitude || !farm.longitude) return null;
+    return `https://map2.daum.net/map/staticmap?mx=${farm.longitude}&my=${farm.latitude}&level=3&map_type=SKYVIEW&map_width=800&map_height=450&service=open`;
+  };
+  
   return (
     <main className="min-h-screen bg-gray-50 p-6 md:p-10 text-gray-900 font-sans">
-      <header className="mb-10">
-        <h1 className="text-3xl font-black tracking-tight mb-8">도화종돈 <span className="text-green-600 font-medium text-xl">농장 통합 관리</span></h1>
-        
+      <header className="mb-12">
+        <h1 className="text-3xl font-bold mb-8 text-center text-green-700">🐷 양돈 농장 관리 시스템</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
         {/* 상단 농장 이름 목록 (사진 없음) */}
         <div className="flex flex-wrap gap-3">
           {farms.map((farm) => (
@@ -58,6 +65,20 @@ export default function Home() {
             </button>
           ))}
         </div>
+      </header>
+
+          //목록으로 돌아가기 버튼 추가
+    <main className="min-h-screen bg-gray-50 p-6 md:p-10">
+      <header className="flex items-center justify-between pb-8 mb-10 border-b border-gray-200">
+        <h1 className="text-4xl font-extrabold text-gray-950 tracking-tight">도화종돈 <span className="text-gray-500 font-normal">(도화 본장)</span></h1>
+        {selectedFarm && (
+          <button 
+            onClick={() => setSelectedFarm(null)} // 목록으로 돌아가기
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium"
+          >
+            <X size={16} /> 목록으로
+          </button>
+        )}
       </header>
 
       {/* 농장 상세 정보 (농장을 클릭했을 때만 나타남) */}
@@ -106,27 +127,38 @@ export default function Home() {
               </section>
             </div>
 
-            {/* 2. 위성 사진 및 현황도 */}
-            <div className="space-y-6">
-              <section className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-                <h2 className="text-2xl font-bold mb-6">위성 사진</h2>
-                <div className="aspect-video bg-gray-100 rounded-2xl overflow-hidden border border-gray-200">
-                  <img 
-                    src={selectedFarm.record_image_url || "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1200"} 
-                    alt="위성 사진" 
-                    className="w-full h-full object-cover" 
-                  />
-                </div>
-              </section>
+            {/* 오른쪽 컬럼: 위성 사진 및 부동산 현황도 */}
+          <div className="space-y-8">
+            <section className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <Globe className="text-blue-500" /> 위성 사진 (Kakao)
+                </h2>
+                {!selectedFarm.latitude && (
+                  <span className="text-xs text-rose-500 font-medium">좌표 미등록</span>
+                )}
+              </div>
+              <div className="aspect-[16/9] rounded-2xl overflow-hidden border border-slate-100 bg-slate-50 shadow-inner">
+                {getKakaoMap(selectedFarm) ? (
+                  <img src={getKakaoMap(selectedFarm)} alt="카카오 위성사진" className="w-full h-full object-cover transition-transform hover:scale-105 duration-500" />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 text-sm p-6 text-center">
+                    <p>위도(latitude)와 경도(longitude) 데이터가 없습니다.</p>
+                  </div>
+                )}
+              </div>
+            </section>
 
-              <section className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-                <h2 className="text-2xl font-bold mb-6">부동산 현황도</h2>
-                <div className="rounded-2xl overflow-hidden border border-gray-200">
-                  <img 
-                    src={selectedFarm.status_map_url || "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=800"} 
-                    alt="부동산 현황도" 
-                    className="w-full h-auto" 
-                  />
+            <section className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <Layout size={24} className="text-orange-400" /> 부동산 현황도
+              </h2>
+              <div className="rounded-2xl overflow-hidden border border-slate-100 bg-slate-50">
+                {selectedFarm.status_map_url ? (
+                  <img src={selectedFarm.status_map_url} alt="부동산 현황도" className="w-full h-auto" />
+                ) : (
+                  <div className="p-20 text-center text-slate-300 text-sm">등록된 현황도 이미지가 없습니다.</div>
+                )}
                 </div>
               </section>
             </div>
