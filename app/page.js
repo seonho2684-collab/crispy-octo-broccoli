@@ -67,20 +67,6 @@ export default function Home() {
         </div>
       </header>
 
-          //목록으로 돌아가기 버튼 추가
-    <main className="min-h-screen bg-gray-50 p-6 md:p-10">
-      <header className="flex items-center justify-between pb-8 mb-10 border-b border-gray-200">
-        <h1 className="text-4xl font-extrabold text-gray-950 tracking-tight">도화종돈 <span className="text-gray-500 font-normal">(도화 본장)</span></h1>
-        {selectedFarm && (
-          <button 
-            onClick={() => setSelectedFarm(null)} // 목록으로 돌아가기
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium"
-          >
-            <X size={16} /> 목록으로
-          </button>
-        )}
-      </header>
-
       {selectedFarm ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
           
@@ -146,13 +132,14 @@ export default function Home() {
                 )}
               </div>
               <div className="aspect-[16/9] rounded-2xl overflow-hidden border border-slate-100 bg-slate-50 shadow-inner">
-                {getKakaoMap(selectedFarm) ? (
-                  <img src={getKakaoMap(selectedFarm)} alt="카카오 위성사진" className="w-full h-full object-cover transition-transform hover:scale-105 duration-500" />
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 text-sm p-6 text-center">
-                    <p>위도(latitude)와 경도(longitude) 데이터가 없습니다.</p>
-                  </div>
-                )}
+                // 카카오 위성지도 URL 생성 (안정적인 WGS84 위도/경도 방식)
+  const getKakaoMap = (farm) => {
+    if (!farm.latitude || !farm.longitude) return null;
+    
+    // mx/my 대신 위도(lat), 경도(lng)를 직접 사용하는 URL 구조입니다.
+    // L=확대레벨(1~14, 3이 적당), map_type=SKYVIEW(위성)
+    return `https://map2.daum.net/map/staticmap?center=${farm.latitude},${farm.longitude}&level=3&map_type=SKYVIEW&width=800&height=450&service=open`;
+  };
               </div>
             </section>
 
