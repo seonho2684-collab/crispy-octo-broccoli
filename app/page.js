@@ -69,9 +69,6 @@ export default function Home() {
           ))}
         </div>
       </header>
-
-      {selectedFarm ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
           
           {/* 왼쪽 컬럼: 기본 정보 및 건물 내역 */}
           <div className="space-y-8">
