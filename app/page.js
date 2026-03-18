@@ -67,6 +67,20 @@ export default function Home() {
         </div>
       </header>
 
+          //목록으로 돌아가기 버튼 추가
+    <main className="min-h-screen bg-gray-50 p-6 md:p-10">
+      <header className="flex items-center justify-between pb-8 mb-10 border-b border-gray-200">
+        <h1 className="text-4xl font-extrabold text-gray-950 tracking-tight">도화종돈 <span className="text-gray-500 font-normal">(도화 본장)</span></h1>
+        {selectedFarm && (
+          <button 
+            onClick={() => setSelectedFarm(null)} // 목록으로 돌아가기
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium"
+          >
+            <X size={16} /> 목록으로
+          </button>
+        )}
+      </header>
+
       {selectedFarm ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
           
