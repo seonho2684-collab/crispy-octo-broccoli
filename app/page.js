@@ -39,13 +39,11 @@ export default function Home() {
   // 선택된 농장의 건물들만 필터링
   const farmBuildings = buildings.filter(b => b.farm_id === selectedFarm?.id);
 
- // 카카오 위성지도 URL 생성 (가장 표준적인 mx, my 방식 사용)
+// 카카오 위성지도 URL 생성 (가장 표준적인 mx, my 방식)
   const getKakaoMapUrl = (farm) => {
     if (!farm.latitude || !farm.longitude) return null;
-    
-    // level=3 (확대), L=3과 동일한 효과
     // mx(경도), my(위도) 순서입니다.
-    return `https://map2.daum.net/map/staticmap?mx=${farm.longitude}&my=${farm.latitude}&level=3&map_type=SKYVIEW&map_width=800&map_height=450&service=open`;
+    return `https://map2.daum.net/map/staticmap?mx=${farm.longitude}&my=${farm.latitude}&level=3&map_type=SKYVIEW&width=800&height=450&service=open`;
   };
 
   return (
@@ -142,33 +140,33 @@ export default function Home() {
 
           {/* [우측 컬럼] 위성 사진 & 현황도 */}
           <div className="space-y-8">
-            {/* 카카오 위성 사진 카드 */}
-            <section className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 overflow-hidden">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tighter flex items-center gap-2">
-                  <Globe className="text-blue-500" size={24} /> Satellite
-                </h2>
-                {!selectedFarm.latitude && <span className="text-[10px] bg-rose-50 text-rose-500 px-2 py-1 rounded-md font-bold uppercase">No GPS Data</span>}
-              </div>
-            <div className="aspect-[16/9] rounded-2xl overflow-hidden border border-slate-100 bg-slate-100 shadow-inner group">
-  {getKakaoMapUrl(selectedFarm) ? (
-    <img 
-      src={getKakaoMapUrl(selectedFarm)} 
-      alt="카카오 위성사진" 
-      className="w-full h-full object-cover"
-      onError={(e) => {
-        // 풍경 사진(unsplash) 주소를 지우고 에러 로그만 남깁니다.
-        e.target.style.border = "4px solid red"; 
-        console.error("카카오 지도 호출 에러: 도메인 혹은 키를 확인하세요.");
-      }}
-    />
-  ) : (
-    <div className="w-full h-full flex items-center justify-center text-slate-300">
-      좌표 데이터가 없습니다.
+            {/* 카카오 위성 사진 섹션 */}
+  <section className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 overflow-hidden">
+    <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tighter mb-6 flex items-center gap-2">
+      <Globe className="text-blue-500" size={24} /> Satellite
+    </h2>
+    <div className="aspect-[16/9] rounded-2xl overflow-hidden border border-slate-100 bg-slate-100 shadow-inner group">
+      {getKakaoMapUrl(selectedFarm) ? (
+        <img 
+          key={selectedFarm.id} // 농장 바뀔 때마다 이미지 태그 강제 리로드
+          src={getKakaoMapUrl(selectedFarm)} 
+          alt="카카오 위성사진" 
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            // [수정] 풍경 사진 주소를 완전히 지웠습니다. 
+            // 이제 에러가 나면 엑스박스(깨진 이미지)가 뜨거나 빨간 테두리가 보여야 정상입니다.
+            e.target.style.border = "10px solid red"; 
+            e.target.src = ""; // 에러 시 이미지를 비워버림
+            console.error("지도 로딩 실패: 도메인 또는 키 설정을 확인하세요.");
+          }}
+        />
+      ) : (
+        <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center bg-slate-50">
+          <p className="text-xs font-bold">좌표 데이터가 없습니다.</p>
+        </div>
+      )}
     </div>
-  )}
-</div>
-            </section>
+  </section>
 
             {/* 부동산 현황도 카드 */}
             <section className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
