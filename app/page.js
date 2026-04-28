@@ -106,7 +106,7 @@ export default function FarmManagementPage() {
       <header className="py-6 flex flex-col items-center border-b-4 border-green-400 bg-white sticky top-0 z-40 shadow-sm">
         <div onClick={() => setSelectedFarm(null)} className="flex items-center gap-4 cursor-pointer">
           <img 
-            src="https://ynuxgbcgpxlsunlhulwi.supabase.co/storage/v1/object/public/image/darby_logo_image.gif" 
+            src="https://ynuxgbcgpxlsunlhulwi.supabase.co/storage/v1/object/sign/image/darby_logo_image.gif?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV84ODQ1NzQ1Zi1jNTQ3LTRiOGMtYjBhZi05M2Y1M2FlMTc4NmMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZS9kYXJieV9sb2dvX2ltYWdlLmdpZiIsImlhdCI6MTc3NzM0MjMwNSwiZXhwIjoxODA4ODc4MzA1fQ.WP8y2Oej3J8NJRFZVm8E3Ik8icD9yJCdRRcCEkyAn-8" 
             alt="Logo" className="h-12" 
           />
           <h1 className="text-3xl font-bold text-gray-700">농장 관리 시스템</h1>
