@@ -179,23 +179,32 @@ export default function FarmManagementPage() {
                 </div>
               </section>
 
-              {/* 건물 현황 테이블 */}
-              <section className="bg-white rounded-2xl shadow-lg overflow-hidden border">
-                <h3 className="text-2xl font-bold p-6 bg-gray-50 border-b">🏢 건물 및 돈방 현황</h3>
+              {/* 건물 현황 표 (요청대로 수정) */}
+              <section className="bg-white rounded-[30px] shadow-xl overflow-hidden border border-gray-100">
+                <h3 className="text-2xl font-bold p-8 bg-gray-50 border-b flex justify-between items-center">
+                  <span>🏢 건물별 상세 사육 현황</span>
+                  <span className="text-sm font-normal text-gray-400">* 행을 클릭하면 세부 돈방 정보가 표시됩니다.</span>
+                </h3>
                 <table className="w-full text-left">
-                  <thead className="bg-green-600 text-white">
+                  <thead className="bg-green-600 text-white text-lg">
                     <tr>
-                      <th className="p-4">건물명</th>
-                      <th className="p-4 text-center">돈방 수</th>
-                      <th className="p-4 text-center">면적(㎡)</th>
+                      <th className="p-6">건물명</th>
+                      <th className="p-6 text-center">돈방 수</th>
+                      <th className="p-6 text-center">건물 면적(㎡)</th>
+                      <th className="p-6 text-center">비고</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="text-lg divide-y divide-gray-100">
                     {buildings.map((b) => (
-                      <tr key={b.id} onClick={() => handleBuildingClick(b)} className={`cursor-pointer border-b hover:bg-green-50 ${selectedBuilding?.id === b.id ? 'bg-green-50 font-bold' : ''}`}>
-                        <td className="p-4">{b.building_name}</td>
-                        <td className="p-4 text-center">{b.room_count}</td>
-                        <td className="p-4 text-center">{b.total_area}</td>
+                      <tr 
+                        key={b.id} 
+                        onClick={() => handleBuildingClick(b)} 
+                        className={`cursor-pointer transition-colors ${selectedBuilding?.id === b.id ? 'bg-green-50 font-bold text-green-700' : 'hover:bg-gray-50'}`}
+                      >
+                        <td className="p-6">{b.building_name}</td>
+                        <td className="p-6 text-center">{b.room_count}개</td>
+                        <td className="p-6 text-center font-mono text-green-600">{b.total_area}</td>
+                        <td className="p-6 text-center text-gray-400 text-base">{b.description || '-'}</td>
                       </tr>
                     ))}
                   </tbody>
